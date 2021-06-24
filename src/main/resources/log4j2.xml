@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="INFO" monitorInterval="30">
+    <properties>
+        <property name="LOG_HOME">/data/logs/</property>
+        <property name="LOG_LEVEL">TRACE</property>
+    </properties>
+
+    <appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <ThresholdFilter level="${LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} [%t] %-5level %logger{36} %M %L -> %msg%n"/>
+        </Console>
+        <RollingRandomAccessFile name="FILE" fileName="${LOG_HOME}/gatewayww.log" filePattern="${LOG_HOME}/gatewayww-%d{yyyy-MM-dd-HH}.log.gz" immediateFlush="false" append="true">
+            <ThresholdFilter level="${LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="UTF-8" pattern="[%-5level][%d{yyyy-MM-dd HH:mm:ss}][%F:%L] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30" >
+                <Delete basePath="${LOG_HOME}" maxDepth="1">
+                    <IfFileName glob="*.log.gz" />
+                    <IfLastModified age="1d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </appenders>
+
+    <loggers>
+        <AsyncRoot level="${LOG_LEVEL}" includeLocation="true">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </AsyncRoot>
+    </loggers>
+</configuration>

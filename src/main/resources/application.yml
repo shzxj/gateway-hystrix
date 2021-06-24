@@ -1,0 +1,56 @@
+server:
+  port: 8000
+
+logging:
+  level:
+    root: INFO
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - name: Hystrix
+          args:
+            name: fallbackcmd
+            fallbackUri: forward:/fallback
+      routes:
+        - id: api-gateway
+          uri: http://localhost:8000
+          order: 0
+          predicates:
+            - Path=/gateway/**
+          filters:
+            - StripPrefix=1
+            - name: Hystrix
+              args:
+                name: fallbackcmd
+                fallbackUri: forward:/fallback
+
+filters:
+  - name: Hystrix
+    args:
+      name : default
+      fallbackUri: forward:/fallback
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 100
+    fallbackcmd:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 100
+    circuitBreaker:
+      forceOpen: true
+
+ribbon:
+  ReadTimeout: 100
+  ConnectTimeout: 100
